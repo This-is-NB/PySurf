@@ -33,7 +33,7 @@ A simple web browser built using Python and PyQt5 with basic functionalities suc
 
     ```bash
     pip install pipenv
-    pipenv --python 3.10
+    pipenv --python 3.12.3
     pipenv install
     pipenv shell
     ```

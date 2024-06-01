@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLineEdit, QToolBar
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile, QWebEngineSettings
 from PyQt5.QtCore import QUrl
-
+from PyQt5.QtGui import QIcon
 class Browser(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -12,7 +12,7 @@ class Browser(QMainWindow):
         self.showMaximized()
         self.home = "http://www.google.com"
         self.zoom_factor = 1.5
-        # self.setWindowIcon(QIcon('icon.png'))
+        self.setWindowIcon(QIcon('Icons/browser.gif'))
         self.setWindowTitle("PySurf")
         
         # Setup profile for ad blocking
@@ -23,23 +23,23 @@ class Browser(QMainWindow):
         self.addToolBar(nav_bar)
         
         # Back button
-        back_btn = QAction('Back', self)
+        back_btn = QAction(QIcon('Icons/back.png'),'Back', self)
         back_btn.triggered.connect(self.browser.back)
         nav_bar.addAction(back_btn)
         
         # Forward button
-        forward_btn = QAction('Forward', self)
+        forward_btn = QAction(QIcon('Icons/forward.png'),'Forward', self)
         forward_btn.triggered.connect(self.browser.forward)
         nav_bar.addAction(forward_btn)
         
         # Reload button
-        reload_btn = QAction('Reload', self)
+        reload_btn = QAction(QIcon('Icons/reload.png'),'Reload', self)
         reload_btn.triggered.connect(self.reload_page)
         self.set_preferences()
         nav_bar.addAction(reload_btn)
         
         # Home button
-        home_btn = QAction('Home', self)
+        home_btn = QAction(QIcon('Icons/home.png'),'Home', self)
         home_btn.triggered.connect(lambda:self.navigate_to_url(home = True))
         nav_bar.addAction(home_btn)
         
@@ -49,28 +49,28 @@ class Browser(QMainWindow):
         nav_bar.addWidget(self.url_bar)
 
                 # Zoom in button
-        zoom_in_btn = QAction('Zoom In', self)
+        zoom_in_btn = QAction(QIcon('Icons/zoom-in.png'),'Zoom In', self)
         zoom_in_btn.triggered.connect(self.zoom_in)
         nav_bar.addAction(zoom_in_btn)
         
         # Zoom out button
-        zoom_out_btn = QAction('Zoom Out', self)
+        zoom_out_btn = QAction(QIcon('Icons/zoom-out.png'),'Zoom Out', self)
         zoom_out_btn.triggered.connect(self.zoom_out)
         nav_bar.addAction(zoom_out_btn)
         
         # Bookmark button
-        bookmark_btn = QAction('Bookmark', self)
+        bookmark_btn = QAction(QIcon('Icons/bookmark.png'),'Bookmark', self)
         bookmark_btn.triggered.connect(self.add_bookmark)
         nav_bar.addAction(bookmark_btn)
         
         # History button
-        history_btn = QAction('History', self)
+        history_btn = QAction(QIcon('Icons/history.png'),'History', self)
         history_btn.triggered.connect(self.show_history)
         nav_bar.addAction(history_btn)
         
         # Private browsing toggle
         self.private_mode = False
-        private_btn = QAction('Private Mode', self)
+        private_btn = QAction(QIcon('Icons/private.png'),'Private Mode', self)
         private_btn.setCheckable(True)
         private_btn.triggered.connect(self.toggle_private_mode)
         nav_bar.addAction(private_btn)
