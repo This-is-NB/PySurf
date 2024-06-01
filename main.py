@@ -3,17 +3,37 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLineEdit, QTool
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile, QWebEngineSettings
 from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QIcon
+import json
+
+preferences = json.load(open('preference.json', 'r'))
+
+#Global Preferences
+
+# zoom_factor = preferences['settings']['zoom_factor']
+# home = preferences['settings']['home']
+# bookmarks = preferences['bookmarks']['bookmarks']
+# history = preferences['history']['history']
+
+# Functions
+def save_preferences( pref): 
+    # print(json.dumps(pref, indent = 4))
+    json.dump(pref, open('preference.json', 'w'), indent = 4)
+
+
 class Browser(QMainWindow):
-    def __init__(self):
+    def __init__(self,preferences = preferences):
         super().__init__()
         self.browser = QWebEngineView()
         self.browser.setUrl(QUrl("http://www.google.com"))
         self.setCentralWidget(self.browser)
         self.showMaximized()
-        self.home = "http://www.google.com"
-        self.zoom_factor = 1.5
         self.setWindowIcon(QIcon('Icons/browser.gif'))
         self.setWindowTitle("PySurf")
+        self.preferences = preferences
+        self.zoom_factor = self.preferences['settings']['zoom_factor']
+        self.home = self.preferences['settings']['home']
+        self.bookmarks = self.preferences['bookmarks']['bookmarks']
+        self.history = self.preferences['history']['history']
         
         # Setup profile for ad blocking
         self.setup_profile()
@@ -35,7 +55,6 @@ class Browser(QMainWindow):
         # Reload button
         reload_btn = QAction(QIcon('Icons/reload.png'),'Reload', self)
         reload_btn.triggered.connect(self.reload_page)
-        self.set_preferences()
         nav_bar.addAction(reload_btn)
         
         # Home button
@@ -75,18 +94,13 @@ class Browser(QMainWindow):
         private_btn.triggered.connect(self.toggle_private_mode)
         nav_bar.addAction(private_btn)
         
-        self.history = []
-        self.bookmarks = []
+        # self.history = []
+        # self.bookmarks = []
         
         # Update URL bar
         self.browser.urlChanged.connect(self.update_url)
         # Connect loadFinished signal to reapply zoom factor
         self.browser.loadFinished.connect(self.apply_zoom_factor)
-
-    def set_preferences(self):
-        preferences = QWebEngineSettings.globalSettings()
-        preferences.setAttribute(QWebEngineSettings.LocalStorageEnabled, True)
-        self.browser.setZoomFactor(self.zoom_factor)
     
     def setup_profile(self):
         profile = QWebEngineProfile.defaultProfile()
@@ -99,6 +113,12 @@ class Browser(QMainWindow):
             url = self.home
         else:
             url = self.url_bar.text()
+        if url.startswith('http') or url.startswith('https'):
+            self.browser.setUrl(QUrl(url))
+        else:
+            if not url.startswith('www.'):
+                url =  'www.' + url
+            self.browser.setUrl(QUrl('http://' + url))
 
         self.browser.setUrl(QUrl(url if url.startswith('http') else 'http://' + url))
     
@@ -106,10 +126,12 @@ class Browser(QMainWindow):
         self.url_bar.setText(url.toString())
         if not self.private_mode:
             self.history.append(url.toString())
+            save_preferences(self.preferences)
     
     def add_bookmark(self):
         url = self.browser.url().toString()
-        self.bookmarks.append(url)
+        self.bookmarks[url] = "bm"
+        save_preferences(self.preferences)
         print(f"Bookmarked {url}")
     
     def show_history(self):
@@ -122,12 +144,14 @@ class Browser(QMainWindow):
         print("Private Mode:", "On" if self.private_mode else "Off")
 
     def zoom_in(self):
-        self.zoom_factor += 0.1
-        self.browser.setZoomFactor(self.zoom_factor)
+        self.preferences['settings']['zoom_factor'] += 0.1
+        save_preferences(self.preferences)
+        self.browser.setZoomFactor(self.preferences['settings']['zoom_factor'])
     
     def zoom_out(self):
-        self.zoom_factor -= 0.1
-        self.browser.setZoomFactor(self.zoom_factor)
+        self.preferences['settings']['zoom_factor'] -= 0.1
+        save_preferences(self.preferences)
+        self.browser.setZoomFactor(self.preferences['settings']['zoom_factor'])
 
     def reload_page(self):
         self.browser.reload()
@@ -137,5 +161,5 @@ class Browser(QMainWindow):
 
 app = QApplication(sys.argv)
 QApplication.setApplicationName("PySurf")
-window = Browser()
+window = Browser(preferences=preferences)
 app.exec_()

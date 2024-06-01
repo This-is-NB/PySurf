@@ -1,0 +1,34 @@
+{
+    "settings": {
+        "zoom_factor": 2.500000000000001,
+        "private_mode": false,
+        "dark_mode": false,
+        "home": "https://www.google.com/"
+    },
+    "bookmarks": {
+        "bookmarks": {
+            "http://www.google.com/": "bm",
+            "https://www.youtube.com/": "bm"
+        }
+    },
+    "history": {
+        "history": [
+            "http://www.google.com/",
+            "http://www.google.com/",
+            "http://www.google.com/",
+            "http://youtube.com",
+            "https://www.youtube.com/",
+            "http://www.google.com/",
+            "http://www.google.com/",
+            "http://www.google.com/",
+            "http://google.com",
+            "http://www.google.com/",
+            "http://www.google.com/",
+            "http://youtube.com",
+            "https://www.youtube.com/",
+            "http://www.google.com/",
+            "http://www.youtube.com",
+            "https://www.youtube.com/"
+        ]
+    }
+}
