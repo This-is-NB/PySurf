@@ -1,8 +1,8 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLineEdit, QToolBar
+from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLineEdit, QToolBar, QCompleter
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile, QWebEngineSettings
-from PyQt5.QtCore import QUrl
-from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QUrl, QStringListModel
+from PyQt5.QtGui import QIcon, QFont
 import json
 
 preferences = json.load(open('preference.json', 'r'))
@@ -65,9 +65,18 @@ class Browser(QMainWindow):
         # URL bar
         self.url_bar = QLineEdit()
         self.url_bar.returnPressed.connect(self.navigate_to_url)
+        self.url_bar.setMinimumHeight(50)
+        self.url_bar.setFont(QFont('Arial', 12))
+        self.url_bar.setClearButtonEnabled(True)
+        # Initialize completer with empty list
+
+        self.completer = QCompleter()
+        self.model = QStringListModel()
+        self.completer.setModel(self.model)
+        self.url_bar.setCompleter(self.completer)
         nav_bar.addWidget(self.url_bar)
 
-                # Zoom in button
+        # Zoom in button
         zoom_in_btn = QAction(QIcon('Icons/zoom-in.png'),'Zoom In', self)
         zoom_in_btn.triggered.connect(self.zoom_in)
         nav_bar.addAction(zoom_in_btn)
@@ -99,6 +108,8 @@ class Browser(QMainWindow):
         
         # Update URL bar
         self.browser.urlChanged.connect(self.update_url)
+
+
         # Connect loadFinished signal to reapply zoom factor
         self.browser.loadFinished.connect(self.apply_zoom_factor)
     
@@ -124,6 +135,7 @@ class Browser(QMainWindow):
     
     def update_url(self, url):
         self.url_bar.setText(url.toString())
+        self.update_completer()
         if not self.private_mode:
             self.history.append(url.toString())
             save_preferences(self.preferences)
@@ -131,13 +143,14 @@ class Browser(QMainWindow):
     def add_bookmark(self):
         url = self.browser.url().toString()
         self.bookmarks[url] = "bm"
+        self.update_completer()
         save_preferences(self.preferences)
         print(f"Bookmarked {url}")
     
     def show_history(self):
         print("History:")
-        for url in self.history:
-            print(url)
+        # for url in self.history:
+            # print(url)
     
     def toggle_private_mode(self):
         self.private_mode = not self.private_mode
@@ -158,6 +171,14 @@ class Browser(QMainWindow):
     
     def apply_zoom_factor(self):
         self.browser.setZoomFactor(self.zoom_factor)
+    
+    def update_completer(self):
+        all_urls = list(set(self.history + list(self.bookmarks.keys())))
+        all_urls_without_protocol = [url.split('//')[1] for url in all_urls]
+        all_urls_without_www = [url.replace('www.', '') for url in all_urls_without_protocol]
+        print("Updating completer with URLs:", all_urls)  # Debug statement
+        self.model.setStringList(list(set(all_urls + all_urls_without_protocol + all_urls_without_www)))
+
 
 app = QApplication(sys.argv)
 QApplication.setApplicationName("PySurf")
